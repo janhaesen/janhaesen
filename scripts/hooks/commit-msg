@@ -1,0 +1,93 @@
+#!/usr/bin/env bash
+# ─────────────────────────────────────────────────────────────────────────────
+# commit-msg hook — enforces Conventional Commits specification
+# https://www.conventionalcommits.org/en/v1.0.0/
+#
+# Format:
+#   <type>[optional scope][optional !]: <description>
+#
+#   [optional body]
+#
+#   [optional footer(s)]
+#
+# Examples:
+#   feat(auth): add OAuth2 login
+#   fix!: remove deprecated endpoint
+#   docs: update README
+# ─────────────────────────────────────────────────────────────────────────────
+
+COMMIT_MSG_FILE="$1"
+COMMIT_MSG=$(cat "$COMMIT_MSG_FILE")
+
+# ── Colours ──────────────────────────────────────────────────────────────────
+RED='\033[0;31m'
+YELLOW='\033[1;33m'
+GREEN='\033[0;32m'
+CYAN='\033[0;36m'
+BOLD='\033[1m'
+RESET='\033[0m'
+
+# ── Allowed types ─────────────────────────────────────────────────────────────
+TYPES="feat|fix|docs|style|refactor|perf|test|chore|build|ci|revert"
+
+# ── Pattern ───────────────────────────────────────────────────────────────────
+# <type>[(<scope>)][!]: <description>
+# - type      : one of the allowed types above
+# - scope     : optional, alphanumeric + hyphens, wrapped in parentheses
+# - !         : optional, signals a breaking change
+# - description: non-empty, does NOT start with a capital letter (style guide)
+PATTERN="^($TYPES)(\([a-zA-Z0-9_/-]+\))?(!)?: .{1,}"
+
+# ── Strip comments and trailing whitespace ────────────────────────────────────
+SUBJECT=$(echo "$COMMIT_MSG" | grep -v '^#' | head -n 1 | sed 's/[[:space:]]*$//')
+
+# ── Skip merge/revert/fixup commits ──────────────────────────────────────────
+if echo "$SUBJECT" | grep -qE '^(Merge|Revert|fixup!|squash!) '; then
+  exit 0
+fi
+
+# ── Validate ──────────────────────────────────────────────────────────────────
+if ! echo "$SUBJECT" | grep -qE "$PATTERN"; then
+  echo ""
+  echo -e "${RED}${BOLD}✖  Invalid commit message${RESET}"
+  echo -e "${YELLOW}────────────────────────────────────────────────────${RESET}"
+  echo -e "  ${BOLD}Given:${RESET}    ${RED}$SUBJECT${RESET}"
+  echo ""
+  echo -e "  ${BOLD}Expected format:${RESET}"
+  echo -e "  ${CYAN}<type>[(<scope>)][!]: <description>${RESET}"
+  echo ""
+  echo -e "  ${BOLD}Allowed types:${RESET}"
+  echo -e "  ${CYAN}feat${RESET}      A new feature"
+  echo -e "  ${CYAN}fix${RESET}       A bug fix"
+  echo -e "  ${CYAN}docs${RESET}      Documentation changes"
+  echo -e "  ${CYAN}style${RESET}     Formatting (no logic change)"
+  echo -e "  ${CYAN}refactor${RESET}  Code restructuring (no feature/fix)"
+  echo -e "  ${CYAN}perf${RESET}      Performance improvement"
+  echo -e "  ${CYAN}test${RESET}      Adding or fixing tests"
+  echo -e "  ${CYAN}chore${RESET}     Tooling, deps, config"
+  echo -e "  ${CYAN}build${RESET}     Build system changes"
+  echo -e "  ${CYAN}ci${RESET}        CI/CD pipeline changes"
+  echo -e "  ${CYAN}revert${RESET}    Revert a previous commit"
+  echo ""
+  echo -e "  ${BOLD}Examples:${RESET}"
+  echo -e "  ${GREEN}feat(auth): add OAuth2 login${RESET}"
+  echo -e "  ${GREEN}fix: handle nil pointer in parser${RESET}"
+  echo -e "  ${GREEN}chore(deps): bump lodash to 4.17.21${RESET}"
+  echo -e "  ${GREEN}feat!: redesign public API (breaking change)${RESET}"
+  echo -e "${YELLOW}────────────────────────────────────────────────────${RESET}"
+  echo ""
+  exit 1
+fi
+
+# ── Warn if description starts with a capital letter ─────────────────────────
+DESCRIPTION=$(echo "$SUBJECT" | sed -E "s/^($TYPES)(\([^)]+\))?(!)?: //")
+FIRST_CHAR=$(echo "$DESCRIPTION" | cut -c1)
+if echo "$FIRST_CHAR" | grep -qE '[A-Z]'; then
+  echo -e "${YELLOW}⚠  Tip: Conventional Commits style prefers a lowercase description.${RESET}"
+  echo -e "   ${YELLOW}\"$SUBJECT\"${RESET}"
+  echo ""
+fi
+
+echo -e "${GREEN}✔  Commit message is valid.${RESET}"
+exit 0
+
