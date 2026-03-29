@@ -1,0 +1,55 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# Fast pre-commit checks against staged files.
+ROOT_DIR="$(git rev-parse --show-toplevel 2>/dev/null || true)"
+if [[ -z "$ROOT_DIR" ]]; then
+  echo "[FAIL] Not inside a Git repository."
+  exit 1
+fi
+
+STAGED_FILES=()
+while IFS= read -r staged_path; do
+  [[ -n "$staged_path" ]] && STAGED_FILES+=("$staged_path")
+done < <(git diff --cached --name-only --diff-filter=ACMR)
+if [[ ${#STAGED_FILES[@]} -eq 0 ]]; then
+  exit 0
+fi
+
+check_md_whitespace() {
+  local file="$1"
+  if grep -nE "[[:blank:]]+$" "$file" >/dev/null; then
+    echo "[FAIL] Trailing whitespace in markdown file: $file"
+    return 1
+  fi
+  return 0
+}
+
+check_shell_syntax() {
+  local file="$1"
+  if ! bash -n "$file"; then
+    echo "[FAIL] Shell syntax error: $file"
+    return 1
+  fi
+  return 0
+}
+
+for rel_path in "${STAGED_FILES[@]}"; do
+  abs_path="$ROOT_DIR/$rel_path"
+
+  # Skip deleted/missing paths and non-files.
+  [[ -f "$abs_path" ]] || continue
+
+  case "$rel_path" in
+    *.md)
+      check_md_whitespace "$abs_path" || exit 1
+      ;;
+    *.sh|scripts/hooks/*)
+      check_shell_syntax "$abs_path" || exit 1
+      ;;
+  esac
+done
+
+echo "[PASS] pre-commit checks"
+exit 0
+
