@@ -27,6 +27,8 @@ Run:
 ```bash
 ./scripts/bootstrap.sh
 ./scripts/check.sh
+./bin/container-env doctor
+PYTHONPATH=packages/container-env/src python3 -m unittest discover -s packages/container-env/tests -t packages/container-env
 ```
 
 Use `./scripts/bootstrap.sh` once per clone to install hooks and validate setup.
@@ -34,6 +36,8 @@ Use `./scripts/bootstrap.sh` once per clone to install hooks and validate setup.
 ## Repository docs
 
 Operational repository documentation lives in `docs/REPOSITORY.md`.
+
+Package-specific documentation should live next to the package under `packages/<name>/docs/`.
 
 ## Pull requests
 

@@ -14,6 +14,15 @@ Engineer focused on practical, high-signal workflows and reusable standards.
 - **Backward compatibility by default**
 - **Security is not optional**
 
+## Reusable Packages
+
+- [`packages/container-env/`](./packages/container-env/) — Python starter package for Docker/Colima environment setup, local registry workflows, and deployment handoff.
+
+## Repo-local Commands
+
+- `./bin/container-env doctor`
+- `./bin/container-env build --image demo-app --context .`
+
 ## Contact
 
 - GitHub: [`@janhaesen`](https://github.com/janhaesen)

@@ -19,6 +19,7 @@ required_files=(
   "$ROOT_DIR/README.md"
   "$ROOT_DIR/docs/REPOSITORY.md"
   "$ROOT_DIR/ENGINEERING_CHANGE_CHECKLIST.md"
+  "$ROOT_DIR/bin/container-env"
   "$ROOT_DIR/.github/CODEOWNERS"
   "$ROOT_DIR/scripts/hooks/commit-msg"
   "$ROOT_DIR/scripts/hooks/pre-commit"
@@ -32,8 +33,21 @@ for f in "${required_files[@]}"; do
 done
 pass "Required files present"
 
+# 1b) Ensure package starter assets exist
+package_required_files=(
+  "$ROOT_DIR/packages/container-env/pyproject.toml"
+  "$ROOT_DIR/packages/container-env/README.md"
+  "$ROOT_DIR/packages/container-env/docs/TEMPLATE.md"
+)
+
+for f in "${package_required_files[@]}"; do
+  [[ -f "$f" ]] || fail "Missing package file: $f"
+done
+pass "Package assets present"
+
 # 2) Check shell scripts have valid syntax
 shell_files=(
+  "$ROOT_DIR/bin/container-env"
   "$ROOT_DIR/scripts/check.sh"
   "$ROOT_DIR/scripts/bootstrap.sh"
   "$ROOT_DIR/scripts/install-hooks.sh"
@@ -53,7 +67,32 @@ for s in "${shell_files[@]}"; do
 done
 pass "Executable permissions"
 
-# 4) Ensure no trailing whitespace in markdown files
+# 4) Validate Python packages under packages/
+while IFS= read -r -d '' pyproject; do
+  package_dir="$(dirname "$pyproject")"
+  package_name="$(basename "$package_dir")"
+
+  if [[ -d "$package_dir/src" ]]; then
+    if ! PYTHONPYCACHEPREFIX="${ROOT_DIR}/.pycache" python3 -m compileall -q "$package_dir/src" "$package_dir/tests"; then
+      fail "Python sources failed to compile for package: $package_name"
+    fi
+  fi
+
+  if [[ -d "$package_dir/tests" ]]; then
+    if ! PYTHONPATH="$package_dir/src" python3 -m unittest discover -s "$package_dir/tests" -t "$package_dir"; then
+      fail "Python unit tests failed for package: $package_name"
+    fi
+  fi
+done < <(find "$ROOT_DIR/packages" -mindepth 2 -maxdepth 2 -name "pyproject.toml" -type f -print0)
+pass "Package Python validation"
+
+# 4b) Smoke test repo-local launchers
+if ! "$ROOT_DIR/bin/container-env" --help >/dev/null; then
+  fail "Repo-local launcher failed: bin/container-env"
+fi
+pass "Repo-local launchers"
+
+# 5) Ensure no trailing whitespace in markdown files
 while IFS= read -r -d '' md; do
   if grep -nE "[[:blank:]]+$" "$md" >/dev/null; then
     fail "Trailing whitespace found in: $md"
@@ -61,7 +100,7 @@ while IFS= read -r -d '' md; do
 done < <(find "$ROOT_DIR" -name "*.md" -type f -print0)
 pass "Markdown trailing whitespace"
 
-# 5) Validate commit hook behavior with one valid and one invalid message
+# 6) Validate commit hook behavior with one valid and one invalid message
 if ! echo "feat(repo): add starter hygiene checks" | bash "$ROOT_DIR/scripts/hooks/commit-msg" /dev/stdin >/dev/null; then
   fail "commit-msg hook rejected a valid commit message"
 fi
@@ -72,4 +111,3 @@ fi
 pass "Conventional Commits enforcement"
 
 echo "All checks passed."
-

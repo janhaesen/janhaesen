@@ -1,0 +1,5 @@
+services:
+  app:
+    image: host.lima.internal:5000/demo-app:latest
+    pull_policy: always
+

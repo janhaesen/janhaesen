@@ -6,6 +6,12 @@ This document is the repository-focused companion to the profile-oriented `READM
 
 This repository is a personal engineering toolkit with reusable standards, templates, and lightweight automation for day-to-day development work.
 
+## Structure
+
+- Root-level files and scripts are for **shared repository governance**.
+- Reusable implementations should live under **`packages/`** as self-contained units with their own source, tests, examples, docs, and packaging metadata.
+- Not every package is expected to be used at the same time; isolation is preferred over flattening everything into the repository root.
+
 ## Repository Assets
 
 | File | Description |
@@ -24,7 +30,18 @@ This repository is a personal engineering toolkit with reusable standards, templ
 | [`scripts/uninstall-hooks.sh`](../scripts/uninstall-hooks.sh) | Removes installed hook symlinks and restores backups. |
 | [`scripts/check.sh`](../scripts/check.sh) | Full local repository hygiene checks. |
 | [`scripts/bootstrap.sh`](../scripts/bootstrap.sh) | One-step setup: installs hooks and runs local checks. |
+| [`bin/container-env`](../bin/container-env) | Repo-local launcher for the `container-env` CLI without installing the package. |
 | [`.github/workflows/repo-hygiene.yml`](../.github/workflows/repo-hygiene.yml) | CI safety net that executes `scripts/check.sh` on PRs and pushes to `main`. |
+
+## Packages
+
+| Package | Description |
+|---------|-------------|
+| [`packages/container-env/`](../packages/container-env/) | Self-contained Python package that abstracts Docker and Colima environment setup, local registry management, and deployment handoff. |
+| [`packages/container-env/docs/`](../packages/container-env/docs/) | Package-local template, architecture, and usage documentation. |
+| [`packages/container-env/tests/`](../packages/container-env/tests/) | Standard-library unit tests for runtime selection, build orchestration, and registry endpoint behavior. |
+| [`packages/container-env/examples/`](../packages/container-env/examples/) | Compose and Kubernetes examples that use package-generated image references. |
+| [`packages/container-env/src/container_env/cli.py`](../packages/container-env/src/container_env/cli.py) | Thin CLI wrapper that exposes doctor and build commands on top of the package facade. |
 
 ## Quick Start
 
@@ -35,7 +52,7 @@ This repository is a personal engineering toolkit with reusable standards, templ
 This command:
 
 1. Installs all hooks from `scripts/hooks/`.
-2. Runs `scripts/check.sh` to validate repository health.
+2. Runs `scripts/check.sh` to validate shell hygiene plus any package-local Python syntax and tests under `packages/`.
 
 ## Daily Workflow
 
@@ -43,8 +60,14 @@ This command:
 # optional after first clone
 ./scripts/install-hooks.sh
 
+# run the repo-local container-env CLI without installation
+./bin/container-env doctor
+
 # before opening a PR
 ./scripts/check.sh
+
+# run the container-env package tests directly
+PYTHONPATH=packages/container-env/src python3 -m unittest discover -s packages/container-env/tests -t packages/container-env
 ```
 
 ## Commit Policy
@@ -86,4 +109,6 @@ feat!: redesign public API
 - Profile README: [`README.md`](../README.md)
 - Contribution guide: [`CONTRIBUTING.md`](../CONTRIBUTING.md)
 - Engineering checklist: [`ENGINEERING_CHANGE_CHECKLIST.md`](../ENGINEERING_CHANGE_CHECKLIST.md)
-
+- Container environment template notes: [`packages/container-env/docs/TEMPLATE.md`](../packages/container-env/docs/TEMPLATE.md)
+- Container environment architecture: [`packages/container-env/docs/architecture/container-env.md`](../packages/container-env/docs/architecture/container-env.md)
+- Container environment usage: [`packages/container-env/docs/usage/container-env.md`](../packages/container-env/docs/usage/container-env.md)
