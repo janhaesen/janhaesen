@@ -1,0 +1,7 @@
+gui:
+  nerdFontsVersion: "3"
+  showRandomTip: false
+  showCommandLog: false
+git:
+  paging:
+    colorArg: always

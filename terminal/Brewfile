@@ -1,0 +1,24 @@
+brew "starship"
+brew "fzf"
+brew "fd"
+brew "eza"
+brew "bat"
+brew "ripgrep"
+brew "zoxide"
+brew "direnv"
+brew "lazygit"
+brew "zsh-autosuggestions"
+brew "zsh-syntax-highlighting"
+
+# Terminal interfaces for the existing container and Kubernetes workflows.
+brew "lazydocker"
+brew "k9s"
+brew "yazi"
+# pdftoppm enables Yazi PDF previews.
+brew "poppler"
+brew "btop"
+
+# Homebrew font casks are supported on macOS.
+if OS.mac?
+  cask "font-jetbrains-mono-nerd-font"
+end

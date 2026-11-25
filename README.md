@@ -18,6 +18,10 @@ Engineer focused on practical, high-signal workflows and reusable standards.
 
 - [`packages/container-env/`](./packages/container-env/) — Python starter package for Docker/Colima environment setup, local registry workflows, and deployment handoff.
 
+## Terminal Setup
+
+- [`terminal/`](./terminal/) — portable zsh, Starship and minimal terminal tools, with an optional Homebrew bundle.
+
 ## Repo-local Commands
 
 - `./bin/container-env doctor`

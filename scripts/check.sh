@@ -54,6 +54,9 @@ shell_files=(
   "$ROOT_DIR/scripts/uninstall-hooks.sh"
   "$ROOT_DIR/scripts/hooks/commit-msg"
   "$ROOT_DIR/scripts/hooks/pre-commit"
+  "$ROOT_DIR/terminal/install.sh"
+  "$ROOT_DIR/terminal/doctor.sh"
+  "$ROOT_DIR/terminal/tests/install.sh"
 )
 
 for s in "${shell_files[@]}"; do
@@ -85,6 +88,10 @@ while IFS= read -r -d '' pyproject; do
   fi
 done < <(find "$ROOT_DIR/packages" -mindepth 2 -maxdepth 2 -name "pyproject.toml" -type f -print0)
 pass "Package Python validation"
+
+# Test terminal setup in an isolated temporary home directory.
+"$ROOT_DIR/terminal/tests/install.sh" || fail "Terminal setup tests failed"
+pass "Terminal setup"
 
 # 4b) Smoke test repo-local launchers
 if ! "$ROOT_DIR/bin/container-env" --help >/dev/null; then

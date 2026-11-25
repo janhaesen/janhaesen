@@ -30,6 +30,7 @@ This repository is a personal engineering toolkit with reusable standards, templ
 | [`scripts/uninstall-hooks.sh`](../scripts/uninstall-hooks.sh) | Removes installed hook symlinks and restores backups. |
 | [`scripts/check.sh`](../scripts/check.sh) | Full local repository hygiene checks. |
 | [`scripts/bootstrap.sh`](../scripts/bootstrap.sh) | One-step setup: installs hooks and runs local checks. |
+| [`terminal/`](../terminal/) | Portable zsh, Starship and terminal tools configuration, backup-aware installer, doctor and isolated installation tests. |
 | [`bin/container-env`](../bin/container-env) | Repo-local launcher for the `container-env` CLI without installing the package. |
 | [`.github/workflows/repo-hygiene.yml`](../.github/workflows/repo-hygiene.yml) | CI safety net that executes `scripts/check.sh` on PRs and pushes to `main`. |
 

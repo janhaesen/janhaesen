@@ -1,0 +1,47 @@
+TERMINAL GUIDE
+==============
+Open this guide with terminal-help. Press q to exit less.
+
+YAZI - browse files
+  yazi [directory]      Open the file manager.
+  Arrow keys or h/j/k/l Navigate files and directories.
+  Enter                 Open the selected file.
+  ~ or F1               Show all key bindings.
+  q                     Quit Yazi.
+  Select a PDF to see its preview; this requires Poppler and a terminal
+  that supports image previews.
+
+GIT AND LAZYGIT
+  git status            Show changed files.
+  git diff              Show unstaged changes.
+  git add <file>        Stage a file for a commit.
+  git commit            Commit staged changes.
+  git log --oneline     Show the commit history.
+  lazygit               Open the Git interface in a repository.
+  gs, gd, ga, gc        Shell aliases for status, diff, add and commit.
+  In lazygit: see the key bindings on screen; q closes the current view.
+
+SEARCH AND NAVIGATION
+  Ctrl-R                Search your command history with fzf.
+  Ctrl-T                Find a file and insert its path on the command line.
+  Alt-C                 Find a directory and navigate to it.
+  rg 'text'             Search file contents in the current directory.
+  fd name               Find files by name.
+  z part-of-directory   Jump to a previously visited directory with zoxide.
+  croot                 Go to the root of the current Git repository.
+  mkcd directory        Create a directory and navigate to it.
+
+OTHER TOOLS
+  lazydocker            View Docker containers and logs; requires an engine.
+  k9s                   Browse Kubernetes resources in your current context.
+  btop                  View system resource usage and processes.
+  bat file              View a file with syntax highlighting.
+  eza -lah              List files, including hidden files.
+  direnv allow          Allow the current directory's .envrc after reviewing it.
+  starship explain      Explain the current prompt's components.
+
+CONFIGURATION AND HELP
+  ./terminal/doctor.sh  Check the installation from the repository.
+  <command> --help      Show help for a specific program.
+  man <command>         Open the manual if one is available.
+  README: terminal/README.md in the repository.
